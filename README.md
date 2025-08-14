@@ -1,101 +1,86 @@
-## sfc: Symlink-driven suffix-container CLI
+# SFC - Suffix Container Framework
 
-This crate provides a Git-friendly, symlink-based container workflow. It exposes a colorized CLI `sfc` and a reusable Rust library (`my_lib::sfc`).
+>> **Work in Progress** - Production Refactor In Progress
+```
+Core Architecture     ████████████████████ 100%
+Error Handling        ████████████████████ 100%  
+Configuration System  ████████████████████ 100%
+CLI Structure         ████████████████████ 100%
+System Integration    ████████████████████ 100%
+Sharing & Flakes      ████████████████████ 100%
+Command Handlers      ██████░░░░░░░░░░░░░░░  30%
+Package Refactor      ░░░░░░░░░░░░░░░░░░░░   0%
+Testing & Docs        ░░░░░░░░░░░░░░░░░░░░   0%
+```
 
-### Requirements
+Symlink-driven container management with O(1) environment switching, multi-source package management, and shareable configurations.
 
-- Rust (stable) with Cargo
-- macOS or Linux (uses Unix symlinks). Windows: use WSL or treat as experimental.
+## Quick Start
 
 ### Build
-
 ```bash
-cargo build
+cargo build --release
 ```
 
-### Run the CLI without installing
-
+### Basic Usage
 ```bash
-# Show help
-cargo run --bin sfc -- --help
+# Legacy CLI (fully functional)
+./target/release/sfc list
+./target/release/sfc create myapp
+./target/release/sfc switch myapp
 
-# Initialize a workspace
-cargo run --bin sfc -- init ~/Projects/sfc-containers
-
-# Create a container
-cd ~/Projects/sfc-containers
-cargo run --bin sfc -- create myapp42
-
-# Inspect status
-cargo run --bin sfc -- status myapp42
-
-# Create a temp snapshot and then promote it
-cargo run --bin sfc -- temp myapp42
-cargo run --bin sfc -- promote myapp42
-
-# Optional clean-up
-cargo run --bin sfc -- clean
+# New modular CLI (partial implementation)
+./target/release/sfc-new list
+./target/release/sfc-new config show
 ```
 
-Tips:
-- Symlink pointers live under `links/`. Inspect them with `ls -la links/` and `readlink links/<name>`.
-- The content-addressed `store/` is ignored by Git; only symlinks and metadata are tracked.
+## Key Features
 
-### Install the CLI locally (optional)
+### [ENV] **Environment Management**
+- **O(1) switching** via symlinks
+- **Immutable snapshots** with content-based hashing
+- **Temp environments** for safe experimentation
 
-```bash
-cargo install --path .
-# then use `sfc` directly
-sfc --help
+### [PKG] **Package Management**
+- **Auto-detection**: macOS (Homebrew), Linux (apt/dnf/pacman)
+- **Multi-source**: System PMs, Nix, Portable, GitHub
+- **GNU Stow integration** with fallback strategies
+
+### [SYS] **System Integration**
+- **Binary switching**: `sudo sfc switch-bin myapp`
+- **Safe restore**: `sudo sfc restore-bin`
+- **Cross-platform** support (macOS, Linux, WSL)
+
+### [SHARE] **Sharing & Collaboration**
+- **Snapshot sharing**: `sfc share myapp abc123`
+- **Recreate environments**: `sfc create project --from abc123`
+- **Nix flake generation** for reproducibility
+
+## Architecture
+
+```
+src/
+├── bin/               # CLI entry points
+│   ├── sfc.rs        # Legacy CLI [OK]
+│   └── sfc_new.rs    # New modular CLI [WIP]
+├── core/             # Core functionality [OK]
+├── cli/              # Command structure [OK]
+├── system/           # Platform integration [OK]
+├── sharing/          # Collaboration features [OK]
+└── config/           # Configuration management [OK]
 ```
 
-### Automated tests
+## Current Status
 
-This repository includes an integration test that runs the CLI end-to-end in a temporary directory.
+**[OK] Working**: Legacy CLI with full container lifecycle  
+**[WIP] In Progress**: New modular CLI with enhanced features  
+**[TODO] Todo**: Command handlers, package refactor, comprehensive testing
 
-Run all tests:
-```bash
-cargo test
-```
+## Requirements
 
-Run a specific test:
-```bash
-cargo test init_and_create_and_status_flow -- --nocapture
-```
+- **Rust** (stable)
+- **Platform**: macOS, Linux, or Windows WSL
+- **Privileges**: `sudo` for system binary switching
 
-What the tests cover:
-- `init` creates `store/`, `containers/`, `links/`, and `.sfc/` in a temp workspace
-- `create` scaffolds a container and stable symlink
-- `temp` creates a temp snapshot and link
-- `promote` flips the stable symlink to the temp snapshot
-- `discard` and `clean` tidy temps and orphaned snapshots
-- `rollback` repoints the stable symlink to a specific snapshot
-
-No global state is modified; tests operate in isolated temp dirs.
-
-### Manual verification checklist
-
-```bash
-WS=~/Projects/sfc-containers
-cargo run --bin sfc -- init "$WS"
-cd "$WS"
-cargo run --bin sfc -- create demo1
-cargo run --bin sfc -- status demo1
-cargo run --bin sfc -- temp demo1
-cargo run --bin sfc -- promote demo1
-ls -la links/
-readlink links/demo1-stable
-cargo run --bin sfc -- clean
-
-# Rollback to the current stable snapshot name (from readlink)
-SNAP=$(readlink links/demo1-stable | xargs basename)
-cargo run --bin sfc -- rollback demo1 "$SNAP"
-```
-
-### Notes
-
-- The CLI uses ANSI colors. If your environment strips colors, set `NO_COLOR=1`.
-- Windows support is experimental; prefer WSL or junctions.
-
-
-# sfc-cli
+---
+*This is a production-level refactor. Use legacy CLI for full functionality.*
