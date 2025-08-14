@@ -1,0 +1,37 @@
+[package]
+name = "my-lib"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4.5", features = ["derive"] }
+owo-colors = "4"
+colored = "2"
+crossterm = "0.27"
+regex = "1"
+rand = "0.8"
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+chrono = { version = "0.4", features = ["clock", "serde"] }
+sha2 = "0.10"
+similar = "2"
+indicatif = "0.17"
+serde_json = "1.0"
+figlet-rs = "0.1"
+gradient = "0.6"
+nix = { version = "0.27", features = ["user"] }
+whoami = "1.4"
+
+[[bin]]
+name = "sfc"
+path = "src/bin/sfc.rs"
+
+[[bin]]
+name = "sfc-new"
+path = "src/bin/sfc_new.rs"
+
+[dev-dependencies]
+assert_cmd = "2"
+predicates = "3"
+tempfile = "3"
