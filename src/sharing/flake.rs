@@ -11,8 +11,8 @@ pub struct FlakeManager {
 }
 
 impl FlakeManager {
-    pub fn new(workspace: WorkspaceManager) -> Self {
-        Self { workspace }
+    pub fn new(workspace: &WorkspaceManager) -> Self {
+        Self { workspace: workspace.clone() }
     }
     
     pub fn generate_flake(&self, container_name: &str) -> Result<String> {
@@ -140,6 +140,6 @@ impl FlakeManager {
 
 /// Convenience function
 pub fn generate_nix_flake(workspace: &WorkspaceManager, container_name: &str) -> Result<String> {
-    let flake_manager = FlakeManager::new(workspace.clone());
+    let flake_manager = FlakeManager::new(&workspace);
     flake_manager.generate_flake(container_name)
 }

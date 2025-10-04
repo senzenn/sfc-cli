@@ -19,7 +19,7 @@ similar = "2"
 indicatif = "0.17"
 serde_json = "1.0"
 figlet-rs = "0.1"
-gradient = "0.6"
+gradient = "0.4"
 nix = { version = "0.27", features = ["user"] }
 whoami = "1.4"
 

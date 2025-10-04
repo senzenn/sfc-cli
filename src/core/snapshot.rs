@@ -443,11 +443,11 @@ pub fn create_snapshot_dir(workspace_root: &Path, kind: &str) -> Result<PathBuf>
 
 /// Seed default lockfiles in a snapshot directory
 pub fn seed_lockfiles(snapshot_dir: &Path) -> Result<()> {
-    let lockfiles = [
-        ("requirements.txt", b"# pinned python deps\n"),
-        ("rockspec.lock", b"# pinned luarocks deps\n"),
-        ("Cargo.lock", b"# pinned cargo lock placeholder\n"),
-        ("package-lock.json", b"{\n  \"name\": \"sfc-container\",\n  \"lockfileVersion\": 2\n}\n"),
+    let lockfiles = vec![
+        ("requirements.txt", "# pinned python deps\n"),
+        ("rockspec.lock", "# pinned luarocks deps\n"),
+        ("Cargo.lock", "# pinned cargo lock placeholder\n"),
+        ("package-lock.json", "{\n  \"name\": \"sfc-container\",\n  \"lockfileVersion\": 2\n}\n"),
     ];
     
     for (filename, content) in &lockfiles {

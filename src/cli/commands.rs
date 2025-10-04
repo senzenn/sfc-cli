@@ -152,6 +152,18 @@ pub enum Commands {
     /// Show animated SFC banner
     Banner,
 
+    /// Enter a temporary shell environment in the current directory (like nix shell)
+    Shell {
+        /// Container to use for the shell environment
+        container: Option<String>,
+        /// Command to run instead of starting an interactive shell
+        #[arg(short, long)]
+        command: Option<String>,
+        /// Keep the environment after command execution
+        #[arg(short = 'k', long)]
+        keep: bool,
+    },
+
     /// Show configuration information
     Config {
         #[command(subcommand)]

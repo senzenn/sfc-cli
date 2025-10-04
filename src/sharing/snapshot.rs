@@ -43,10 +43,10 @@ pub struct ShareMetadata {
 }
 
 impl ShareManager {
-    pub fn new(workspace: WorkspaceManager) -> Self {
+    pub fn new(workspace: &WorkspaceManager) -> Self {
         let snapshot_manager = SnapshotManager::new(&workspace.root);
         Self {
-            workspace,
+            workspace: workspace.clone(),
             snapshot_manager,
         }
     }
@@ -427,12 +427,12 @@ impl ShareManager {
 
 /// Share a snapshot (convenience function)
 pub fn share_snapshot(workspace: &WorkspaceManager, container_name: &str, hash: Option<&str>) -> Result<ShareInfo> {
-    let share_manager = ShareManager::new(workspace.clone());
+    let share_manager = ShareManager::new(&workspace);
     share_manager.generate_share_info(container_name, hash)
 }
 
 /// Recreate a container from shared data (convenience function)
 pub fn recreate_from_share(workspace: &WorkspaceManager, share_data: &str, new_container_name: &str) -> Result<String> {
-    let share_manager = ShareManager::new(workspace.clone());
+    let share_manager = ShareManager::new(&workspace);
     share_manager.import_snapshot(share_data, new_container_name)
 }

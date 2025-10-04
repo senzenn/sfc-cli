@@ -13,6 +13,7 @@ pub struct WorkspaceMeta {
     pub created_at: chrono::DateTime<chrono::Utc>,
 }
 
+#[derive(Clone)]
 pub struct WorkspaceManager {
     pub root: PathBuf,
     pub config: SfcConfig,

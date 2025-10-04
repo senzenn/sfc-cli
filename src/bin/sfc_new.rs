@@ -135,6 +135,9 @@ fn run_app(cli: Cli) -> Result<()> {
         Commands::Banner => {
             my_lib::cli::handlers::handle_banner()
         }
+        Commands::Shell { container, command, keep } => {
+            my_lib::cli::handlers::handle_shell(&workspace, container.as_deref(), command.as_deref(), keep)
+        }
     }
 }
 

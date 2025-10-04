@@ -220,7 +220,8 @@ fn print_ascii_banner() {
     let figure = font.convert("SFC");
     
     if let Some(fig) = figure {
-        let lines: Vec<&str> = fig.to_string().lines().collect();
+        let fig_string = fig.to_string();
+        let lines: Vec<&str> = fig_string.lines().collect();
         for (i, line) in lines.iter().enumerate() {
             let color = match i % 5 {
                 0 => CtColor::Magenta,
@@ -327,10 +328,11 @@ fn cmd_create(names: &[String], from_hash: Option<&str>) -> Result<()> {
 
             let snapshot_dir = if let Some(hash) = from_hash {
                 // Recreate from existing snapshot hash
-                println!("🔄 {} container '{}' from snapshot {}", 
+                let hash_short = &hash[..12.min(hash.len())];
+                println!("🔄 {} container '{}' from snapshot {}",
                         "Recreating".yellow().bold(),
                         name.cyan(),
-                        &hash[..12.min(hash.len())].bright_yellow());
+                        hash_short.bright_yellow());
                 
                 recreate_from_snapshot(&root, name, hash)?
             } else {
@@ -340,10 +342,11 @@ fn cmd_create(names: &[String], from_hash: Option<&str>) -> Result<()> {
                 
                 // Auto-generate hash for new snapshot
                 let hash = core::compute_snapshot_hash(&snapshot_dir)?;
-                println!("{} {} at snapshot {}", 
-                        "Created container".green(), 
+                let hash_short = &hash[..12];
+                println!("{} {} at snapshot {}",
+                        "Created container".green(),
                         name.bold(),
-                        &hash[..12].bright_yellow());
+                        hash_short.bright_yellow());
                 
                 snapshot_dir
             };
@@ -403,7 +406,7 @@ fn recreate_from_snapshot(root: &Path, container_name: &str, hash: &str) -> Resu
     
     // Add packages from the shared snapshot
     for package in &share_info.packages {
-        use crate::container::{PackageSpec, PackageSource};
+        use my_lib::container::{PackageSpec, PackageSource};
         let spec = PackageSpec {
             name: package.name.clone(),
             version: package.version.clone(),
@@ -1337,8 +1340,10 @@ fn cmd_snapshots(name: &str) -> Result<()> {
     println!("");
     for (i, snapshot) in snapshots.iter().enumerate() {
         let status_icon = if snapshot.is_active { "🎯" } else { "📸" };
-        let hash_display = format!("{}", &snapshot.hash[..12]).bright_yellow();
-        let time_display = snapshot.timestamp.format("%Y-%m-%d %H:%M:%S").to_string().dimmed();
+        let hash_str = &snapshot.hash[..12];
+        let hash_display = hash_str.bright_yellow();
+        let time_str = snapshot.timestamp.format("%Y-%m-%d %H:%M:%S").to_string();
+        let time_display = time_str.dimmed();
         
         println!("   {} {} {} {} {}", 
                 format!("{:2}.", i + 1).dimmed(),
@@ -1372,9 +1377,10 @@ fn cmd_share(name: &str, hash: Option<&str>) -> Result<()> {
         }
     };
 
-    println!("🔗 {} snapshot {} for container '{}'", 
+    let hash_short = &snapshot_hash[..12];
+    println!("🔗 {} snapshot {} for container '{}'",
             "Sharing".yellow().bold(),
-            &snapshot_hash[..12].bright_yellow(),
+            hash_short.bright_yellow(),
             name.cyan().bold());
 
     let share_info = core::generate_share_info(&workspace, name, &snapshot_hash)?;
@@ -1415,8 +1421,9 @@ fn cmd_delete_snapshot(name: &str, hash: &str, force: bool) -> Result<()> {
     }
 
     if !force {
-        print!("🗑️  Delete snapshot {} for container '{}'? [y/N]: ", 
-               &hash[..12.min(hash.len())].red(), 
+        let hash_short = &hash[..12.min(hash.len())];
+        print!("🗑️  Delete snapshot {} for container '{}'? [y/N]: ",
+               hash_short.red(),
                name.red());
         let _ = std::io::stdout().flush();
         
@@ -1430,7 +1437,8 @@ fn cmd_delete_snapshot(name: &str, hash: &str, force: bool) -> Result<()> {
         }
     }
 
-    println!("🗑️  {} snapshot {}", "Deleting".yellow().bold(), &hash[..12.min(hash.len())].red());
+    let hash_short = &hash[..12.min(hash.len())];
+    println!("🗑️  {} snapshot {}", "Deleting".yellow().bold(), hash_short.red());
     
     core::delete_snapshot(&workspace, name, hash)?;
     

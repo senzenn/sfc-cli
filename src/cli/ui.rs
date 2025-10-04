@@ -17,7 +17,7 @@ use crate::error::SfcError;
 /// Print a banner with current container info
 pub fn print_banner() {
     let mut out = stdout();
-    
+
     // Create a dramatic effect with colors
     let _ = queue!(out,
         SetForegroundColor(CtColor::Magenta),
@@ -26,7 +26,7 @@ pub fn print_banner() {
         Print("SFC"),
         ResetColor,
     );
-    
+
     // Show current container with enhanced styling
     if let Ok(workspace) = crate::core::WorkspaceManager::default() {
         if let Ok(Some(current)) = workspace.current_container() {
@@ -47,7 +47,7 @@ pub fn print_banner() {
             );
         }
     }
-    
+
     let _ = queue!(out, Print(" "));
     let _ = out.flush();
 }
@@ -56,9 +56,10 @@ pub fn print_banner() {
 pub fn print_ascii_banner() {
     let font = FIGfont::standard().unwrap();
     let figure = font.convert("SFC");
-    
+
     if let Some(fig) = figure {
-        let lines: Vec<&str> = fig.to_string().lines().collect();
+        let fig_string = fig.to_string();
+        let lines: Vec<&str> = fig_string.lines().collect();
         for (i, line) in lines.iter().enumerate() {
             let color = match i % 5 {
                 0 => CtColor::Magenta,
@@ -75,7 +76,7 @@ pub fn print_ascii_banner() {
             );
         }
     }
-    
+
     print_animated_border();
 }
 
@@ -83,14 +84,14 @@ pub fn print_ascii_banner() {
 fn print_animated_border() {
     let border_chars = "▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱";
     let width = 80;
-    
+
     for i in 0..3 {
         let color = match i {
             0 => CtColor::Magenta,
             1 => CtColor::Blue,
             _ => CtColor::Cyan,
         };
-        
+
         let _ = execute!(
             stdout(),
             SetForegroundColor(color),
@@ -163,14 +164,14 @@ pub fn print_containers_banner(containers: &[String], current: &Option<String>) 
         ResetColor,
         Print("\n")
     );
-    
+
     for (i, name) in containers.iter().enumerate() {
         let (marker, color) = if current.as_ref() == Some(name) {
             (" ← ACTIVE", CtColor::Green)
         } else {
             ("", CtColor::Cyan)
         };
-        
+
         let _ = execute!(
             stdout(),
             SetForegroundColor(CtColor::DarkGrey),
@@ -180,7 +181,7 @@ pub fn print_containers_banner(containers: &[String], current: &Option<String>) 
             ResetColor
         );
     }
-    
+
     if let Some(current_name) = current {
         let _ = execute!(
             stdout(),
@@ -202,7 +203,7 @@ pub fn print_containers_banner(containers: &[String], current: &Option<String>) 
             Print("\n")
         );
     }
-    
+
     let _ = execute!(
         stdout(),
         Print("\n"),
@@ -297,30 +298,30 @@ pub fn animate_startup_sequence() {
         ("📦", "Container system", CtColor::Green),
         ("✨", "Ready!", CtColor::Magenta),
     ];
-    
+
     for (emoji, text, color) in &steps {
         let _ = execute!(
             stdout(),
             SetForegroundColor(*color),
             Print(&format!("    {} {}", emoji, text))
         );
-        
+
         // Animated dots
         for _ in 0..3 {
             thread::sleep(Duration::from_millis(200));
             let _ = execute!(stdout(), Print("."));
         }
-        
+
         let _ = execute!(
             stdout(),
             SetForegroundColor(CtColor::Green),
             Print(" ✓\n"),
             ResetColor
         );
-        
+
         thread::sleep(Duration::from_millis(100));
     }
-    
+
     println!("");
     let _ = execute!(
         stdout(),
@@ -345,9 +346,9 @@ pub fn print_installation_header(package_name: &str, version: Option<&str>, sour
         Print("    ⚡ INSTALLING PACKAGE\n"),
         ResetColor
     );
-    
+
     let version_display = version.map(|v| format!("@{}", v)).unwrap_or_else(|| "@latest".to_string());
-    
+
     let _ = execute!(
         stdout(),
         SetForegroundColor(CtColor::White),
@@ -359,7 +360,7 @@ pub fn print_installation_header(package_name: &str, version: Option<&str>, sour
         Print("\n"),
         ResetColor
     );
-    
+
     let _ = execute!(
         stdout(),
         SetForegroundColor(CtColor::Green),
@@ -372,7 +373,7 @@ pub fn print_installation_header(package_name: &str, version: Option<&str>, sour
         ResetColor,
         Print("\n")
     );
-    
+
     thread::sleep(Duration::from_millis(500));
 }
 
@@ -387,7 +388,7 @@ pub fn print_success_celebration(package_name: &str, hash: &str) {
         ResetColor,
         Print("\n\n")
     );
-    
+
     // Animated success effect
     let celebration = ["🎉", "✨", "🚀", "⭐", "💫"];
     for (i, emoji) in celebration.iter().enumerate() {
@@ -396,7 +397,7 @@ pub fn print_success_celebration(package_name: &str, hash: &str) {
             1 => CtColor::Magenta,
             _ => CtColor::Cyan,
         };
-        
+
         let _ = execute!(
             stdout(),
             SetForegroundColor(color),
@@ -404,7 +405,7 @@ pub fn print_success_celebration(package_name: &str, hash: &str) {
         );
         thread::sleep(Duration::from_millis(100));
     }
-    
+
     let _ = execute!(
         stdout(),
         ResetColor,
@@ -422,11 +423,11 @@ pub fn print_success_celebration(package_name: &str, hash: &str) {
 pub fn confirm_destructive_operation(operation: &str, target: &str) -> Result<bool, std::io::Error> {
     print!("⚠️  {} '{}'? [y/N]: ", operation, target.red());
     std::io::stdout().flush()?;
-    
+
     let mut input = String::new();
     std::io::stdin().read_line(&mut input)?;
     let input = input.trim().to_lowercase();
-    
+
     Ok(input == "y" || input == "yes")
 }
 

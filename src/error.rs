@@ -131,7 +131,7 @@ impl std::error::Error for SfcError {
         match self {
             SfcError::Io { source, .. } => Some(source),
             SfcError::Package { source, .. } => Some(source.as_ref()),
-            SfcError::Generic { source, .. } => source.as_ref().map(|s| s.as_ref()),
+            SfcError::Generic { source, .. } => source.as_ref().map(|s| s.as_ref() as &(dyn std::error::Error + 'static)),
             _ => None,
         }
     }
@@ -142,7 +142,7 @@ pub trait ErrorContext<T> {
     fn with_context<F>(self, f: F) -> Result<T>
     where
         F: FnOnce() -> String;
-    
+
     fn with_io_context<F>(self, f: F) -> Result<T>
     where
         F: FnOnce() -> String;
@@ -158,7 +158,7 @@ impl<T> ErrorContext<T> for std::result::Result<T, std::io::Error> {
             source: Some(Box::new(e)),
         })
     }
-    
+
     fn with_io_context<F>(self, f: F) -> Result<T>
     where
         F: FnOnce() -> String,
@@ -180,7 +180,7 @@ impl<T> ErrorContext<T> for std::result::Result<T, SfcError> {
             source: Some(Box::new(e)),
         })
     }
-    
+
     fn with_io_context<F>(self, f: F) -> Result<T>
     where
         F: FnOnce() -> String,
@@ -199,9 +199,3 @@ impl From<anyhow::Error> for SfcError {
     }
 }
 
-// Conversion to anyhow::Error for backwards compatibility
-impl From<SfcError> for anyhow::Error {
-    fn from(err: SfcError) -> Self {
-        anyhow::anyhow!("{}", err)
-    }
-}
